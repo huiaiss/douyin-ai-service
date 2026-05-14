@@ -12,9 +12,9 @@ class ReplyGenerator:
     }
 
     REORDER_PATTERNS = [
-        lambda t: t,
-        lambda t: t.replace("哦~", "呢~") if "哦~" in t else t,
-        lambda t: t.replace("亲", "亲爱的") if "亲" in t and "亲爱的" not in t else t,
+        lambda t: t.replace("哦~", "呢~") if "哦~" in t else t + "~",
+        lambda t: t.replace("亲", "亲爱的") if "亲" in t and "亲爱的" not in t else "亲爱的，" + t,
+        lambda t: t + "！" if not t.endswith("！") else t,
     ]
 
     def __init__(self):

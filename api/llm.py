@@ -57,6 +57,7 @@ class LLMRouter:
         model: str | None = None,
         mock: bool = False,
         use_real_api: bool = True,
+        max_tokens: int = 1024,
     ) -> str:
         if mock or not use_real_api or not self._clients:
             for key, val in self._mock_responses.items():
@@ -92,7 +93,7 @@ class LLMRouter:
                         {"role": "user", "content": user_message},
                     ],
                     temperature=0.7,
-                    max_tokens=1024,
+                    max_tokens=max_tokens,
                 )
                 return resp.choices[0].message.content
             except Exception:
