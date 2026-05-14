@@ -16,8 +16,12 @@ function connect() {
   };
 
   ws.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    broadcastToTabs(data);
+    try {
+      const data = JSON.parse(event.data);
+      broadcastToTabs(data);
+    } catch (e) {
+      console.error("[AI客服] 消息解析失败", e);
+    }
   };
 
   ws.onclose = () => {

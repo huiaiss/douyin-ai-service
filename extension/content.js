@@ -113,7 +113,8 @@
     return null;
   }
 
-  function onNewMessage(text) {
+  function onNewMessage(text, convoId) {
+    currentConvoId = convoId || currentConvoId;
     panel.style.display = "block";
     const contentEl = document.getElementById("__ai_content__");
     const statusEl = document.getElementById("__ai_status__");
@@ -137,6 +138,7 @@
       const statusEl = document.getElementById("__ai_status__");
       if (statusEl) statusEl.textContent = isConnected ? "● 在线" : "○ 离线";
     } else if (message.type === "ai_reply") {
+      if (message.convo_id) currentConvoId = message.convo_id;
       panel._currentReply = message.content;
       const contentEl = document.getElementById("__ai_content__");
       const statusEl = document.getElementById("__ai_status__");
