@@ -1,7 +1,9 @@
 import os
 import sys
+import datetime
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
+import numpy as np
 import pytest
 from db.models import Customer, Conversation, Message, Knowledge, Product, Order, Analytics
 
@@ -32,7 +34,6 @@ class TestModels:
         assert convo.customer.nickname == "买家A"
 
     def test_knowledge_embedding_storage(self):
-        import numpy as np
         emb = np.random.randn(384).astype(np.float32)
         k = Knowledge.create(
             category="商品知识", title="退换货政策",
@@ -56,8 +57,8 @@ class TestModels:
 
     def test_analytics_aggregation(self):
         Analytics.create(
-            date="2026-05-14", convo_count=10, avg_response=3.5,
+            date=datetime.date(2026, 5, 14), convo_count=10, avg_response=3.5,
             pos_ratio=0.8, top_questions='["发货时间","退换货"]'
         )
-        today = Analytics.get(Analytics.date == "2026-05-14")
+        today = Analytics.get(Analytics.date == datetime.date(2026, 5, 14))
         assert today.convo_count == 10

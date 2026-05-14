@@ -1,13 +1,16 @@
-import os
+import datetime
 from peewee import (
     SqliteDatabase, Model, CharField, TextField,
-    IntegerField, FloatField, DateTimeField, ForeignKeyField, BlobField
+    IntegerField, FloatField, DateTimeField, DateField,
+    ForeignKeyField, BlobField, SQL
 )
 from config import Config
-from datetime import datetime
 
-os.makedirs(Config.DATA_DIR, exist_ok=True)
-db = SqliteDatabase(Config.DATABASE_PATH)
+db = SqliteDatabase(None)
+
+
+def _utcnow():
+    return datetime.datetime.now(datetime.timezone.utc)
 
 
 class BaseModel(Model):
@@ -26,8 +29,8 @@ class Conversation(BaseModel):
     customer = ForeignKeyField(Customer, backref="conversations")
     platform = CharField(max_length=32, default="douyin")
     status = CharField(max_length=16, default="active")
-    created_at = DateTimeField(default=datetime.now)
-    updated_at = DateTimeField(default=datetime.now)
+    created_at = DateTimeField(default=_utcnow)
+    updated_at = DateTimeField(default=_utcnow)
 
 
 class Message(BaseModel):
@@ -36,7 +39,7 @@ class Message(BaseModel):
     content = TextField()
     sentiment = CharField(max_length=16, null=True)
     source = CharField(max_length=32, null=True)
-    created_at = DateTimeField(default=datetime.now)
+    created_at = DateTimeField(default=_utcnow)
 
 
 class Knowledge(BaseModel):
@@ -44,7 +47,7 @@ class Knowledge(BaseModel):
     title = CharField(max_length=256)
     content = TextField()
     embedding = BlobField(null=True)
-    created_at = DateTimeField(default=datetime.now)
+    created_at = DateTimeField(default=_utcnow)
 
 
 class Product(BaseModel):
@@ -55,7 +58,7 @@ class Product(BaseModel):
     category = CharField(max_length=64, default="")
     tags = TextField(default="[]")
     embedding = BlobField(null=True)
-    created_at = DateTimeField(default=datetime.now)
+    created_at = DateTimeField(default=_utcnow)
 
 
 class Order(BaseModel):
@@ -64,11 +67,11 @@ class Order(BaseModel):
     status = CharField(max_length=32)
     amount = FloatField(default=0.0)
     logistics = TextField(default="{}")
-    created_at = DateTimeField(default=datetime.now)
+    created_at = DateTimeField(default=_utcnow)
 
 
 class Analytics(BaseModel):
-    date = CharField(max_length=16, unique=True)
+    date = DateField(unique=True)
     convo_count = IntegerField(default=0)
     avg_response = FloatField(default=0.0)
     pos_ratio = FloatField(default=0.0)
