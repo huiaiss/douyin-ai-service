@@ -2,16 +2,18 @@ from typing import Dict, Any
 from core.intent import IntentClassifier
 from core.reply_generator import ReplyGenerator
 from core.sentiment import SentimentAnalyzer
+from core.knowledge_retriever import KnowledgeRetriever
 from api.llm import LLMRouter
 
 
 class MessageHandler:
-    """消息处理主流程：意图识别 → 情绪分析 → LLM生成 → 改写"""
+    """消息处理主流程：意图识别 → 情绪分析 → 知识检索 → LLM生成 → 改写"""
 
     def __init__(self):
         self.intent_classifier = IntentClassifier()
         self.reply_generator = ReplyGenerator()
         self.sentiment_analyzer = SentimentAnalyzer()
+        self.knowledge_retriever = KnowledgeRetriever(load_model=False)
         self.llm = LLMRouter()
 
     def process(self, message: Dict[str, Any]) -> Dict[str, Any]:
@@ -19,7 +21,10 @@ class MessageHandler:
 
         intent = self.intent_classifier.classify(content)
         sentiment = self.sentiment_analyzer.analyze(content)
-        prompt = self._build_prompt(content, intent, sentiment)
+
+        knowledge = self._retrieve_knowledge(content, intent["category"])
+
+        prompt = self._build_prompt(content, intent, sentiment, knowledge)
 
         raw_reply = self.llm.chat(prompt, mock=(not self.llm._clients))
 
@@ -34,14 +39,28 @@ class MessageHandler:
             "platform_uid": message.get("platform_uid", ""),
         }
 
-    def _build_prompt(self, content: str, intent: dict, sentiment: str) -> str:
+    def _retrieve_knowledge(self, content: str, category: str) -> list[dict]:
+        if not self.knowledge_retriever._model:
+            return []
+        try:
+            return self.knowledge_retriever.retrieve(content, top_k=2)
+        except Exception:
+            return []
+
+    def _build_prompt(self, content: str, intent: dict, sentiment: str,
+                      knowledge: list[dict]) -> str:
         style = self.reply_generator.style_prompt
         base = f"""{style}
 你是抖音电商客服。用户意图：{intent['category']}，情绪：{sentiment}。
 
 用户消息：{content}
+"""
+        if knowledge:
+            base += "\n相关知识：\n"
+            for i, k in enumerate(knowledge, 1):
+                base += f"{i}. {k['content']}\n"
 
-请生成一段简洁、自然、有帮助的回复。"""
+        base += "\n请生成一段简洁、自然、有帮助的回复。"
         if sentiment == "负面":
             base += "\n用户情绪不好，请优先安抚，然后解决问题。"
         return base
