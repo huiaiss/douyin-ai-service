@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}对话记录 - 抖音 AI 客服{% endblock %}
+{% block content %}
+<h1>对话记录</h1>
+<table class="table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>客户</th>
+      <th>状态</th>
+      <th>更新时间</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for c in conversations %}
+    <tr>
+      <td>{{ c.id }}</td>
+      <td>{{ c.customer.nickname }}</td>
+      <td><span class="badge badge-{{ c.status }}">{{ c.status }}</span></td>
+      <td>{{ c.updated_at.strftime("%H:%M:%S") }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

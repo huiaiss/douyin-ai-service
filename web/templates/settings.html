@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}设置 - 抖音 AI 客服{% endblock %}
+{% block content %}
+<h1>设置</h1>
+<table class="table">
+  <tr><td>版本</td><td>{{ version }}</td></tr>
+  <tr><td>主模型</td><td>{{ primary_model }}</td></tr>
+  <tr><td>Embedding</td><td>{{ embedding_model }}</td></tr>
+  <tr><td>数据库</td><td>{{ db_path }}</td></tr>
+  <tr><td>DeepSeek</td><td>{{ "已配置" if ds_configured else "未配置" }}</td></tr>
+  <tr><td>Qwen</td><td>{{ "已配置" if qwen_configured else "未配置" }}</td></tr>
+  <tr><td>Kimi</td><td>{{ "已配置" if kimi_configured else "未配置" }}</td></tr>
+</table>
+{% endblock %}

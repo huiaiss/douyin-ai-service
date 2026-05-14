@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}抖音 AI 客服{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <nav class="nav">
+    <a href="/admin" class="nav-brand">抖音 AI 客服</a>
+    <div class="nav-links">
+      <a href="/admin">首页</a>
+      <a href="/admin/conversations">对话</a>
+      <a href="/admin/knowledge">知识库</a>
+      <a href="/admin/settings">设置</a>
+    </div>
+  </nav>
+  <main class="container">{% block content %}{% endblock %}</main>
+</body>
+</html>

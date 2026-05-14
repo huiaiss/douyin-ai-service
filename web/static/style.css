@@ -1,0 +1,33 @@
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:"PingFang SC","Microsoft YaHei",sans-serif; background:#0f0f1a; color:#e0e0e0; min-height:100vh; }
+.nav { display:flex; align-items:center; padding:0 24px; height:56px; background:#1a1a2e; border-bottom:1px solid rgba(100,130,255,0.1); }
+.nav-brand { color:#a0b4ff; font-weight:700; font-size:16px; text-decoration:none; margin-right:32px; }
+.nav-links { display:flex; gap:20px; }
+.nav-links a { color:#888; text-decoration:none; font-size:14px; }
+.nav-links a:hover { color:#a0b4ff; }
+.container { max-width:960px; margin:0 auto; padding:32px 24px; }
+h1 { font-size:22px; color:#a0b4ff; margin-bottom:24px; }
+h2 { font-size:16px; color:#888; margin:24px 0 12px; }
+.stats { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:32px; }
+.stat-card { background:#1a1a2e; border:1px solid rgba(100,130,255,0.1); border-radius:12px; padding:20px; text-align:center; }
+.stat-value { font-size:28px; color:#a0b4ff; font-weight:700; }
+.stat-label { font-size:12px; color:#666; margin-top:4px; }
+.table { width:100%; border-collapse:collapse; }
+.table th,.table td { padding:12px 16px; text-align:left; border-bottom:1px solid rgba(100,130,255,0.05); }
+.table th { color:#666; font-weight:500; font-size:12px; text-transform:uppercase; }
+.list { list-style:none; }
+.list li { padding:8px 12px; border-bottom:1px solid rgba(100,130,255,0.05); font-size:14px; }
+.btn { padding:8px 16px; border:none; border-radius:8px; cursor:pointer; font-size:13px; }
+.btn-primary { background:#3a3a6e; color:#a0b4ff; }
+.btn-primary:hover { background:#4a4a8e; }
+.btn-secondary { background:transparent; border:1px solid rgba(100,130,255,0.2); color:#888; }
+.btn-danger { background:rgba(244,67,54,0.15); color:#f44336; }
+.btn-sm { padding:4px 10px; font-size:12px; }
+.badge { padding:2px 8px; border-radius:4px; font-size:11px; }
+.badge-active { background:rgba(76,175,80,0.15); color:#4caf50; }
+.badge-handoff { background:rgba(255,152,0,0.15); color:#ff9800; }
+.input { width:100%; padding:10px; background:#0f0f1a; border:1px solid rgba(100,130,255,0.2); border-radius:8px; color:#e0e0e0; font-size:14px; margin-bottom:12px; }
+.modal { position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:1000; }
+.modal-content { background:#1a1a2e; border:1px solid rgba(100,130,255,0.2); border-radius:12px; padding:24px; width:420px; }
+.modal-content h3 { color:#a0b4ff; margin-bottom:16px; }
+.modal-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:16px; }

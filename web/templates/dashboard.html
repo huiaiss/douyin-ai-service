@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}首页 - 抖音 AI 客服{% endblock %}
+{% block content %}
+<h1>首页看板</h1>
+<div class="stats">
+  <div class="stat-card">
+    <div class="stat-value">{{ stats.convo_count }}</div>
+    <div class="stat-label">今日对话</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">{{ "%.1f" % stats.avg_response }}s</div>
+    <div class="stat-label">平均响应</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">{{ "%d%%" % (stats.pos_ratio * 100) }}</div>
+    <div class="stat-label">好评率</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">{{ active_count }}</div>
+    <div class="stat-label">活跃对话</div>
+  </div>
+</div>
+<h2>热门问题</h2>
+<ul class="list">
+  {% for q in stats.top_questions %}
+  <li>{{ q }}</li>
+  {% endfor %}
+</ul>
+{% endblock %}
