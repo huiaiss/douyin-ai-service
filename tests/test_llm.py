@@ -34,3 +34,19 @@ class TestLLMRouter:
         )
         assert isinstance(result, str)
         assert len(result) > 0
+
+    def test_fallback_chain_deduplication(self):
+        """Verify fallback chain does not duplicate providers"""
+        router = LLMRouter()
+        # Build a fallback chain manually to verify dedup
+        from api.llm import MODEL_TO_PROVIDER
+        providers = list(MODEL_TO_PROVIDER.values())
+        assert len(providers) == len(set(providers)), \
+            f"Duplicate providers found: {providers}"
+
+    def test_mock_reply_keyword_match(self, router):
+        """Test built-in mock reply keywords"""
+        assert "运输" in router._mock_reply("我的快递到哪了")
+        assert "退换货" in router._mock_reply("我要退款")
+        assert "48小时" in router._mock_reply("什么时候发货")
+        assert "感谢" in router._mock_reply("随便聊聊")

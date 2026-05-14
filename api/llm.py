@@ -1,29 +1,47 @@
+import logging
 from config import Config
+
+logger = logging.getLogger(__name__)
+
+# Model name → provider mapping, built from config
+MODEL_TO_PROVIDER: dict[str, str] = {}
+PROVIDER_DEFAULT_MODEL: dict[str, str] = {}
+
+
+def _build_mappings():
+    MODEL_TO_PROVIDER[Config.PRIMARY_MODEL] = "deepseek"
+    PROVIDER_DEFAULT_MODEL["deepseek"] = Config.PRIMARY_MODEL
+    for model_name, provider, key, url in Config.FALLBACK_MODELS:
+        if provider not in PROVIDER_DEFAULT_MODEL:
+            PROVIDER_DEFAULT_MODEL[provider] = model_name
+        MODEL_TO_PROVIDER[model_name] = provider
+
+
+_build_mappings()
 
 
 class LLMRouter:
     """LLM 路由：多模型调度 + 容灾降级"""
 
     def __init__(self):
-        self._mock_responses = {}
-        self._clients = {}
+        self._mock_responses: dict[str, str] = {}
+        self._clients: dict[str, object] = {}
         self._init_clients()
 
     def _init_clients(self):
+        from openai import OpenAI
+
         if Config.DEEPSEEK_API_KEY:
-            from openai import OpenAI
             self._clients["deepseek"] = OpenAI(
                 api_key=Config.DEEPSEEK_API_KEY,
                 base_url=Config.DEEPSEEK_BASE_URL,
             )
         if Config.QWEN_API_KEY:
-            from openai import OpenAI
             self._clients["qwen"] = OpenAI(
                 api_key=Config.QWEN_API_KEY,
                 base_url=Config.QWEN_BASE_URL,
             )
         if Config.KIMI_API_KEY:
-            from openai import OpenAI
             self._clients["kimi"] = OpenAI(
                 api_key=Config.KIMI_API_KEY,
                 base_url=Config.KIMI_BASE_URL,
@@ -36,7 +54,7 @@ class LLMRouter:
         self,
         user_message: str,
         system: str = "你是一个专业的抖音电商客服助手，请用中文回复。",
-        model: str = Config.PRIMARY_MODEL,
+        model: str | None = None,
         mock: bool = False,
         use_real_api: bool = True,
     ) -> str:
@@ -46,19 +64,22 @@ class LLMRouter:
                     return val
             return self._mock_reply(user_message)
 
-        # Primary + filtered fallbacks, deduplicated by provider
-        seen = set()
-        fallback_chain = []
-        for entry in [("deepseek", Config.PRIMARY_MODEL)] + [
-            (provider, name)
-            for name, provider, key, url in Config.FALLBACK_MODELS
-            if key
-        ]:
-            if entry[0] not in seen:
-                seen.add(entry[0])
-                fallback_chain.append(entry)
+        target_model = model or Config.PRIMARY_MODEL
+        target_provider = MODEL_TO_PROVIDER.get(target_model)
 
-        last_error = None
+        # Build fallback chain: start with requested model, then others
+        seen: set[str] = set()
+        fallback_chain: list[tuple[str, str]] = []
+
+        if target_provider and target_provider in self._clients:
+            seen.add(target_provider)
+            fallback_chain.append((target_provider, target_model))
+
+        for model_name, provider, key, url in Config.FALLBACK_MODELS:
+            if provider not in seen and provider in self._clients:
+                seen.add(provider)
+                fallback_chain.append((provider, model_name))
+
         for provider, model_name in fallback_chain:
             client = self._clients.get(provider)
             if not client:
@@ -74,8 +95,8 @@ class LLMRouter:
                     max_tokens=1024,
                 )
                 return resp.choices[0].message.content
-            except Exception as e:
-                last_error = e
+            except Exception:
+                logger.warning("Provider %s failed, falling back", provider)
                 continue
 
         return self._mock_reply(user_message)
