@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "抖音 AI 客服助手",
+  "version": "0.1.0",
+  "description": "AI 智能回复建议，帮你打字",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://fxg.jinritemai.com/*",
+    "https://buyin.jinritemai.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://fxg.jinritemai.com/*",
+        "https://buyin.jinritemai.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_end"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "AI 客服助手"
+  }
+}

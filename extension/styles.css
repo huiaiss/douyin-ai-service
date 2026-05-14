@@ -1,0 +1,6 @@
+#__ai_panel__ {
+  transition: opacity 0.3s ease;
+}
+#__ai_content__ {
+  transition: border-left 0.2s ease, padding-left 0.2s ease;
+}
