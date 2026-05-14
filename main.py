@@ -4,12 +4,14 @@ import uvicorn
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from db.migrations import init_db
 from config import Config
+from core.message_handler import MessageHandler
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 APP_VERSION = "0.1.0"
 app = FastAPI(title="抖音 AI 客服", version=APP_VERSION)
+handler = MessageHandler()
 
 
 @app.get("/api/health")
@@ -35,14 +37,14 @@ async def websocket_endpoint(websocket: WebSocket):
                 await websocket.send_text(json.dumps({"type": "pong"}))
                 continue
 
-            # Echo mode for Phase 1 (will be replaced in Phase 2)
+            result = handler.process(msg)
             await websocket.send_text(
                 json.dumps({
                     "type": "ai_reply",
-                    "convo_id": msg.get("convo_id", ""),
-                    "content": f"收到消息: {msg.get('content', '')}",
-                    "intent": "general",
-                    "sentiment": "中性",
+                    "convo_id": result["convo_id"],
+                    "content": result["reply"],
+                    "intent": result["intent"],
+                    "sentiment": result["sentiment"],
                 })
             )
     except WebSocketDisconnect:
@@ -52,7 +54,7 @@ async def websocket_endpoint(websocket: WebSocket):
 @app.on_event("startup")
 async def startup():
     init_db()
-    print(f"Database initialized at {Config.DATABASE_PATH}")
+    logger.info("Database initialized at %s", Config.DATABASE_PATH)
 
 
 if __name__ == "__main__":
