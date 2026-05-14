@@ -9,6 +9,8 @@ from db.models import Conversation, Knowledge, Analytics
 from config import Config
 from core.message_handler import MessageHandler
 from api.knowledge import router as knowledge_router
+from api.analytics import router as analytics_router
+from api.orders import router as orders_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -17,6 +19,8 @@ APP_VERSION = "0.1.0"
 app = FastAPI(title="抖音 AI 客服", version=APP_VERSION)
 app.mount("/static", StaticFiles(directory="web/static"), name="static")
 app.include_router(knowledge_router)
+app.include_router(analytics_router)
+app.include_router(orders_router)
 templates = Jinja2Templates(directory="web/templates")
 handler = MessageHandler()
 
