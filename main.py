@@ -5,12 +5,14 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from db.migrations import init_db
 from config import Config
 from core.message_handler import MessageHandler
+from api.knowledge import router as knowledge_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 APP_VERSION = "0.1.0"
 app = FastAPI(title="抖音 AI 客服", version=APP_VERSION)
+app.include_router(knowledge_router)
 handler = MessageHandler()
 
 
@@ -45,6 +47,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     "content": result["reply"],
                     "intent": result["intent"],
                     "sentiment": result["sentiment"],
+                    "handoff": result.get("handoff", False),
                 })
             )
     except WebSocketDisconnect:

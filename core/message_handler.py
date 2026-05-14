@@ -24,6 +24,19 @@ class MessageHandler:
         intent = self.intent_classifier.classify(content)
         sentiment = self.sentiment_analyzer.analyze(content)
 
+        result = {
+            "intent": intent["category"],
+            "sentiment": sentiment,
+            "convo_id": message.get("convo_id", ""),
+            "platform_uid": message.get("platform_uid", ""),
+            "handoff": False,
+        }
+
+        if self._should_handoff(content):
+            result["handoff"] = True
+            result["reply"] = "您的问题已转接人工客服，请稍等，我们的客服人员会尽快为您服务。"
+            return result
+
         knowledge = self._retrieve_knowledge(content, intent["category"])
 
         products = []
@@ -35,15 +48,15 @@ class MessageHandler:
         raw_reply = self.llm.chat(prompt, mock=(not self.llm._clients))
 
         self.reply_generator.rotate_style()
-        final_reply = self.reply_generator.rewrite(raw_reply)
+        result["reply"] = self.reply_generator.rewrite(raw_reply)
+        return result
 
-        return {
-            "reply": final_reply,
-            "intent": intent["category"],
-            "sentiment": sentiment,
-            "convo_id": message.get("convo_id", ""),
-            "platform_uid": message.get("platform_uid", ""),
-        }
+    def _should_handoff(self, content: str) -> bool:
+        keywords = ["人工", "转人工", "找客服", "投诉", "电话", "经理", "负责人"]
+        angry = ["太差", "气死", "垃圾", "骗", "举报", "投诉"]
+        has_keyword = any(kw in content for kw in keywords)
+        has_angry = any(kw in content for kw in angry)
+        return has_keyword or (has_angry and "人工" in content)
 
     def _retrieve_knowledge(self, content: str, category: str) -> list[dict]:
         if not self.knowledge_retriever._model:
