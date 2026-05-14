@@ -21,6 +21,7 @@ class TestDouyinAdapter:
         assert msg["nickname"] == "测试买家"
         assert msg["content"] == "这个商品什么时候发货？"
         assert msg["convo_id"] == "conv_001"
+        assert msg["timestamp"] == 1778730000
 
     def test_format_reply(self):
         adapter = DouyinAdapter()
@@ -30,4 +31,4 @@ class TestDouyinAdapter:
         )
         assert formatted["type"] == "reply"
         assert formatted["convo_id"] == "conv_001"
-        assert "亲，48小时内发货哦~" in formatted["content"]
+        assert formatted["content"] == "亲，48小时内发货哦~"
