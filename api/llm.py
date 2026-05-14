@@ -46,13 +46,17 @@ class LLMRouter:
                     return val
             return self._mock_reply(user_message)
 
-        fallback_chain = [
-            ("deepseek", Config.PRIMARY_MODEL),
-        ] + [
+        # Primary + filtered fallbacks, deduplicated by provider
+        seen = set()
+        fallback_chain = []
+        for entry in [("deepseek", Config.PRIMARY_MODEL)] + [
             (provider, name)
             for name, provider, key, url in Config.FALLBACK_MODELS
             if key
-        ]
+        ]:
+            if entry[0] not in seen:
+                seen.add(entry[0])
+                fallback_chain.append(entry)
 
         last_error = None
         for provider, model_name in fallback_chain:
